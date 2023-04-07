@@ -21,8 +21,6 @@ const getAccessToken = async (clientId, clientSecret) => {
 
 const accessToken = await getAccessToken(clientId, clientSecret);
 
-console.log(accessToken);
-
 const BaseURI = "https://healthidsbx.abdm.gov.in";
 const BasePath = "api";
 
