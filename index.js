@@ -12,6 +12,10 @@ app.use(cors());
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+app.get("/", (req, res) => {
+  res.send("hello");
+});
 // const searchResults = await searchPatients(accessToken, searchQuery);
 // console.log(accessToken);
 
