@@ -109,6 +109,6 @@ app.get("/", (req, res) => {
 
 app.use("/api", Auth);
 
-app.listen(3000, () => {
+app.listen(process.env.HOST, () => {
   console.log("Server is running on port 3000");
 });
