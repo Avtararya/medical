@@ -9,6 +9,7 @@ dotenv.config();
 
 const app = express();
 app.use(cors());
+app.use(express.json()); // This middleware will parse the request body
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
