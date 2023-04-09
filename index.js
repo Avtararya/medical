@@ -19,7 +19,7 @@ app.get("/", (req, res) => {
   res.send("hello");
 });
 
-app.use(`${BASE_URL}/api`, Auth);
+app.use("/api", Auth);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on ${BASE_URL}`);
