@@ -1,17 +1,13 @@
 import express from "express";
 import axios from "axios";
-import request from "request";
 import { accessToken } from "../config.js";
 
 const router = express.Router();
-
-// const accessToken = await getAccessToken(clientId, clientSecret);
 
 const BaseURI = "https://healthidsbx.abdm.gov.in";
 const BasePath = "api";
 
 // Generate Mobile OTP to start registration
-
 router.post("/generateOtp", async (req, res) => {
   try {
     const { mobile } = req.body;
@@ -40,6 +36,11 @@ router.post("/resendOtp", async (req, res) => {
       `${BaseURI}/${BasePath}/api/v1/registration/mobile/resendOtp`,
       {
         mobileNumber,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       }
     );
 
@@ -82,6 +83,11 @@ router.post("/aadhaar/verifyOTP", async (req, res) => {
       {
         aadhaarNumber,
         otp,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       }
     );
 
@@ -96,10 +102,18 @@ router.post("/createHealthId", async (req, res) => {
   try {
     const { mobileNumber, token } = req.body;
 
-    const response = await axios.post(`${BaseURI}/createHealthId`, {
-      mobileNumber,
-      token,
-    });
+    const response = await axios.post(
+      `${BaseURI}/${BasePath}/v1/registration/createHealthId`,
+      {
+        mobileNumber,
+        token,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
 
     res.json(response.data);
   } catch (error) {
