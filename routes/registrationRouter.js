@@ -1,25 +1,11 @@
 import express from "express";
 import axios from "axios";
 import request from "request";
+import { accessToken } from "../config.js";
 
 const router = express.Router();
 
-const clientId = "SBX_002395";
-const clientSecret = "f71714da-bfb6-4744-bc25-c839df86a29d";
-// const searchQuery = "John Doe";
-
-const getAccessToken = async (clientId, clientSecret) => {
-  const response = await axios.post(
-    "https://dev.abdm.gov.in/gateway/v0.5/sessions",
-    {
-      clientId: clientId,
-      clientSecret: clientSecret,
-    }
-  );
-  return response.data.accessToken;
-};
-
-const accessToken = await getAccessToken(clientId, clientSecret);
+// const accessToken = await getAccessToken(clientId, clientSecret);
 
 const BaseURI = "https://healthidsbx.abdm.gov.in";
 const BasePath = "api";
