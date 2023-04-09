@@ -20,16 +20,12 @@ router.post("/generateOtp", async (req, res) => {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-      json: { mobile },
+      data: { mobile },
     };
-    request.post(options, (error, response, body) => {
-      if (error) {
-        console.error(error);
-        res.status(500).json({ message: "Something went wrong." });
-      } else {
-        res.json(body);
-      }
+    const response = await axios.post(options.url, options.data, {
+      headers: options.headers,
     });
+    res.json(response.data);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Something went wrong." });
@@ -54,7 +50,6 @@ router.post("/resendOtp", async (req, res) => {
   }
 });
 
-// // Verify Mobile OTP sent as part of registration transaction
 router.post("/verifyOtp", async (req, res) => {
   try {
     const { txnId, otp } = req.body;
@@ -78,27 +73,25 @@ router.post("/verifyOtp", async (req, res) => {
   }
 });
 
-// // Verify Aadhaar OTP Only
-// router.post("/aadhaar/verifyOTP", async (req, res) => {
-//   try {
-//     const { aadhaarNumber, otp } = req.body;
+router.post("/aadhaar/verifyOTP", async (req, res) => {
+  try {
+    const { aadhaarNumber, otp } = req.body;
 
-//     const response = await axios.post(
-//       `${ BaseURI }/${ BasePath }/v1/registration/mobile/verifyOtp`,
-//       {
-//         aadhaarNumber,
-//         otp,
-//       }
-//     );
+    const response = await axios.post(
+      `${BaseURI}/${BasePath}/v1/registration/mobile/verifyOtp`,
+      {
+        aadhaarNumber,
+        otp,
+      }
+    );
 
-//     res.json(response.data);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: "Something went wrong." });
-//   }
-// });
+    res.json(response.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong." });
+  }
+});
 
-// // Create Health ID with verified mobile token
 router.post("/createHealthId", async (req, res) => {
   try {
     const { mobileNumber, token } = req.body;
