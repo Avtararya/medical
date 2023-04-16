@@ -5,6 +5,7 @@ import cors from "cors";
 
 import dotenv from "dotenv";
 import Auth from "./routes/registrationRouter.js";
+import Aadhar from "./routes/RegisterAadhar.js";
 dotenv.config();
 
 const app = express();
@@ -12,6 +13,14 @@ app.use(cors());
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use("/api", Auth);
+app.use("/api", Aadhar);
+
+app.listen(4000, () => {
+  console.log("Server is running on port 4000");
+});
+
 // const searchResults = await searchPatients(accessToken, searchQuery);
 // console.log(accessToken);
 
@@ -102,9 +111,3 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // // Call the function with the access token
 // addHiuService(accessToken);
-
-app.use("/api", Auth);
-
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
-});

@@ -1,51 +1,63 @@
 import express from "express";
 import axios from "axios";
 import request from "request";
+import pkg from "pg"; // Import your database connection pool
+const { pool } = pkg;
+
+import { getAccessToken } from "../config.js";
+let accessToken = await getAccessToken();
 
 const router = express.Router();
-
-const clientId = "SBX_002395";
-const clientSecret = "f71714da-bfb6-4744-bc25-c839df86a29d";
-// const searchQuery = "John Doe";
-
-const getAccessToken = async (clientId, clientSecret) => {
-  const response = await axios.post(
-    "https://dev.abdm.gov.in/gateway/v0.5/sessions",
-    {
-      clientId: clientId,
-      clientSecret: clientSecret,
-    }
-  );
-  return response.data.accessToken;
-};
-
-const accessToken = await getAccessToken(clientId, clientSecret);
-
-console.log(accessToken);
 
 const BaseURI = "https://healthidsbx.abdm.gov.in";
 const BasePath = "api";
 
 // Generate Mobile OTP to start registration
 
+let tokenRow = null;
+
+// try {
+//   const query = {
+//     text: "SELECT * FROM tokens WHERE name = $1",
+//     values: ["accessToken"],
+//   };
+//   const { rows } = await pool.query(query);
+//   if (rows.length > 0) {
+//     tokenRow = rows[0];
+//     accessToken = tokenRow.value;
+//   }
+// } catch (error) {
+//   console.error(error);
+// }
+
+// if (!tokenRow) {
+//   const query = {
+//     text: "INSERT INTO tokens (name, value) VALUES ($1, $2)",
+//     values: ["accessToken", accessToken],
+//   };
+//   try {
+//     await pool.query(query);
+//   } catch (error) {
+//     console.error(error);
+//   }
+// }
+
 router.post("/generateOtp", async (req, res) => {
+  const { mobile } = req.body;
+
   try {
-    const { mobile } = req.body;
-    const options = {
-      url: `${BaseURI}/${BasePath}/v1/registration/mobile/generateOtp`,
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
+    const response = await axios.post(
+      `${BaseURI}/${BasePath}/v1/registration/mobile/generateOtp`,
+      {
+        mobile,
       },
-      json: { mobile },
-    };
-    request.post(options, (error, response, body) => {
-      if (error) {
-        console.error(error);
-        res.status(500).json({ message: "Something went wrong." });
-      } else {
-        res.json(body);
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       }
-    });
+    );
+    res.json(response.data);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Something went wrong." });
@@ -70,7 +82,6 @@ router.post("/resendOtp", async (req, res) => {
   }
 });
 
-// // Verify Mobile OTP sent as part of registration transaction
 router.post("/verifyOtp", async (req, res) => {
   try {
     const { txnId, otp } = req.body;
@@ -117,17 +128,54 @@ router.post("/verifyOtp", async (req, res) => {
 // // Create Health ID with verified mobile token
 router.post("/createHealthId", async (req, res) => {
   try {
-    const { mobileNumber, token } = req.body;
-
-    const response = await axios.post(`${BaseURI}/createHealthId`, {
-      mobileNumber,
-      token,
-    });
-
+    const data = req.body;
+    const response = await axios.post(
+      `${BaseURI}/${BasePath}/v1/registration/mobile/createHealthId`,
+      {
+        ...data,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
     res.json(response.data);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Something went wrong." });
+  }
+});
+
+router.get("/districtCode", async (req, res) => {
+  try {
+    const response = await axios.get(
+      `${BaseURI}/${BasePath}/v1/ha/lgd/districts?stateCode=27`, // replace with your actual endpoint
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/stateCode", async (req, res) => {
+  try {
+    const response = await axios.get(
+      `${BaseURI}/${BasePath}/v2/ha/lgd/states`, // replace with your actual endpoint
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
